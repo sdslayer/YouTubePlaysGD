@@ -9,14 +9,14 @@ from TwitchPlays_KeyCodes import *
 ##################### GAME VARIABLES #####################
 
 # Replace this with your Twitch username. Must be all lowercase.
-TWITCH_CHANNEL = 'dougdougw' 
+TWITCH_CHANNEL = None
 
 # If streaming on Youtube, set this to False
-STREAMING_ON_TWITCH = True
+STREAMING_ON_TWITCH = False
 
 # If you're streaming on Youtube, replace this with your Youtube's Channel ID
 # Find this by clicking your Youtube profile pic -> Settings -> Advanced Settings
-YOUTUBE_CHANNEL_ID = "YOUTUBE_CHANNEL_ID_HERE" 
+YOUTUBE_CHANNEL_ID = "UCfHX3ok3eN4oHGWvR1PCOlA" 
 
 # If you're using an Unlisted stream to test on Youtube, replace "None" below with your stream's URL in quotes.
 # Otherwise you can leave this as "None"
@@ -29,12 +29,12 @@ YOUTUBE_STREAM_URL = None
 # A smaller number means we go through the message queue faster, but we will run out of messages faster and activity might "stagnate" while waiting for a new batch. 
 # A higher number means we go through the queue slower, and messages are more evenly spread out, but delay from the viewers' perspective is higher.
 # You can set this to 0 to disable the queue and handle all messages immediately. However, then the wait before another "batch" of messages is more noticeable.
-MESSAGE_RATE = 0.5
+MESSAGE_RATE = 0.2
 # MAX_QUEUE_LENGTH limits the number of commands that will be processed in a given "batch" of messages. 
 # e.g. if you get a batch of 50 messages, you can choose to only process the first 10 of them and ignore the others.
 # This is helpful for games where too many inputs at once can actually hinder the gameplay.
 # Setting to ~50 is good for total chaos, ~5-10 is good for 2D platformers
-MAX_QUEUE_LENGTH = 20
+MAX_QUEUE_LENGTH = 5
 MAX_WORKERS = 100 # Maximum number of threads you can process at a time 
 
 last_time = time.time()
@@ -79,45 +79,121 @@ def handle_message(message):
         ###################################
 
         # If the chat message is "left", then hold down the A key for 2 seconds
-        if msg == "left": 
+        if msg == "short left": 
+            HoldAndReleaseKey(A, 0.1)
+            
+        # if msg == "left": 
+        #     HoldAndReleaseKey(A, 0.5)
+            
+        if msg.startswith("left"):
+            words = msg.split()
+            if len(words) == 1:
+                # print("message has 1 word")
+                HoldAndReleaseKey(A, 0.5)
+            if len(words) == 2:
+                # print("message has 2 words")
+                try:
+                    holdtime = float(words[1])
+                    # print(f"words[1]: {holdtime}")
+                    # print(type(holdtime))
+                    if holdtime > 0 and holdtime <= 0.5:
+                        HoldAndReleaseKey(A, holdtime)
+                except Exception as error:
+                    print(f"Not a float: {error}")
+            
+        # if msg == "long left": 
+        #     HoldAndReleaseKey(A, 1)
+
+        if msg == "short right": 
+            HoldAndReleaseKey(D, 0.1)
+            
+        # if msg == "right": 
+        #     HoldAndReleaseKey(D, 0.5)
+            
+        if msg.startswith("right"):
+            words = msg.split()
+            if len(words) == 1:
+                # print("message has 1 word")
+                HoldAndReleaseKey(D, 0.5)
+            if len(words) == 2:
+                # print("message has 2 words")
+                try:
+                    holdtime = float(words[1])
+                    # print(f"words[1]: {holdtime}")
+                    # print(type(holdtime))
+                    if holdtime > 0 and holdtime <= 0.5:
+                        HoldAndReleaseKey(D, holdtime)
+                except Exception as error:
+                    print(f"Not a float: {error}")
+            
+        # if msg == "long right": 
+        #     HoldAndReleaseKey(D, 1)
+            
+        if msg == "jump":
+            HoldAndReleaseKey(W, 0.3)
+            
+        if msg == "spam":
+            HoldAndReleaseKey(W, 0.2)
+            HoldAndReleaseKey(W, 0.2)
+            HoldAndReleaseKey(W, 0.2)
+            
+        if msg == "hold":
+            HoldAndReleaseKey(W, 1)
+
+        # if msg == "dash": # Jump & Hold (Dash Orb)
+        #     HoldAndReleaseKey(W, 0.3)
+        #     HoldAndReleaseKey(W, 2)
+            
+        if msg.startswith("dash"):
+            words = msg.split()
+            if len(words) == 1:
+                # print("message has 1 word")
+                HoldAndReleaseKey(W, 0.25)
+                HoldAndReleaseKey(W, 2)
+            if len(words) == 2:
+                # print("message has 2 words")
+                try:
+                    holdtime = float(words[1])
+                    # print(f"words[1]: {holdtime}")
+                    # print(type(holdtime))
+                    if holdtime > 0 and holdtime <= 2:
+                        HoldAndReleaseKey(W, 0.25)
+                        HoldAndReleaseKey(W, holdtime)
+                except Exception as error:
+                    print(f"Not a float: {error}")
+
+        if msg == "lump": # Left Jump
+            HoldAndReleaseKey(W, 0)
+            HoldAndReleaseKey(A, 0.5)
+
+        if msg == "hard lump":
+            HoldAndReleaseKey(W, 0.2)
+            HoldAndReleaseKey(A, 0.5)
+
+        if msg == "long lump":
+            HoldAndReleaseKey(W, 0)
             HoldAndReleaseKey(A, 2)
 
-        # If the chat message is "right", then hold down the D key for 2 seconds
-        if msg == "right": 
+        if msg == "rump":
+            HoldAndReleaseKey(W, 0)
+            HoldAndReleaseKey(D, 0.5)
+
+        if msg == "hard rump":
+            HoldAndReleaseKey(W, 0.2)
+            HoldAndReleaseKey(D, 0.5)
+
+        if msg == "long rump":
+            HoldAndReleaseKey(W, 0)
             HoldAndReleaseKey(D, 2)
 
-        # If message is "drive", then permanently hold down the W key
-        if msg == "drive": 
-            ReleaseKey(S) #release brake key first
-            HoldKey(W) #start permanently driving
+        if msg == "place":
+            HoldAndReleaseKey(Z, 0.1)
 
-        # If message is "reverse", then permanently hold down the S key
-        if msg == "reverse": 
-            ReleaseKey(W) #release drive key first
-            HoldKey(S) #start permanently reversing
+        if msg == "delete":
+            HoldAndReleaseKey(X, 0.1)
 
-        # Release both the "drive" and "reverse" keys
-        if msg == "stop": 
-            ReleaseKey(W)
-            ReleaseKey(S)
-
-        # Press the spacebar for 0.7 seconds
-        if msg == "brake": 
-            HoldAndReleaseKey(SPACE, 0.7)
-
-        # Press the left mouse button down for 1 second, then release it
-        if msg == "shoot": 
-            pydirectinput.mouseDown(button="left")
-            time.sleep(1)
-            pydirectinput.mouseUp(button="left")
-
-        # Move the mouse up by 30 pixels
-        if msg == "aim up":
-            pydirectinput.moveRel(0, -30, relative=True)
-
-        # Move the mouse right by 200 pixels
-        if msg == "aim right":
-            pydirectinput.moveRel(200, 0, relative=True)
+        if msg == "screenshot":
+            HoldAndReleaseKey(F12, 0.1)
 
         ####################################
         ####################################
@@ -131,7 +207,7 @@ while True:
     active_tasks = [t for t in active_tasks if not t.done()]
 
     #Check for new messages
-    new_messages = t.twitch_receive_messages();
+    new_messages = t.twitch_receive_messages()
     if new_messages:
         message_queue += new_messages; # New messages are added to the back of the queue
         message_queue = message_queue[-MAX_QUEUE_LENGTH:] # Shorten the queue to only the most recent X messages
@@ -148,7 +224,7 @@ while True:
             # Pop the messages we want off the front of the queue
             messages_to_handle = message_queue[0:n]
             del message_queue[0:n]
-            last_time = time.time();
+            last_time = time.time()
 
     # If user presses Shift+Backspace, automatically end the program
     if keyboard.is_pressed('shift+backspace'):

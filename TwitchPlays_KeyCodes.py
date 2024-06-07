@@ -5,6 +5,7 @@
 import time
 import ctypes
 import pynput
+import pyautogui
 
 #############################################################
 #################### DIRECT X KEY CODES #####################
@@ -145,3 +146,10 @@ def HoldAndReleaseKey(hexKeyCode, seconds):
     HoldKey(hexKeyCode)
     time.sleep(seconds)
     ReleaseKey(hexKeyCode)
+
+def HoldAndRelease2Keys(key1, key2, holdtime):
+    pyautogui.keyDown(key1)
+    pyautogui.keyDown(key2)
+    time.sleep(holdtime)
+    pyautogui.keyUp(key2)
+    pyautogui.keyUp(key1)
